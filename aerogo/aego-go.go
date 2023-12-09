@@ -1,6 +1,7 @@
 package aerogo
 
 import (
+	"log"
 	"net/http"
 )
 
@@ -18,23 +19,23 @@ func New() *Engine {
 }
 
 // 添加路由信息
-func (engine *Engine) addRoute(method string, PathName string, handler HandlerFunc) {
-	engine.router.addRoute(method, PathName, handler)
+func (engine *Engine) addRoute(method string, pattern string, handler HandlerFunc) {
+	engine.router.addRoute(method, pattern, handler)
 }
 
 // GET 请求路径
-func (engine *Engine) GET(PathName string, handler HandlerFunc) {
-	engine.addRoute("GET", PathName, handler)
+func (engine *Engine) GET(pattern string, handler HandlerFunc) {
+	engine.addRoute("GET", pattern, handler)
 }
 
 // POST 请求方法
-func (engine *Engine) POST(PathName string, handler HandlerFunc) {
-	engine.addRoute("POST", PathName, handler)
+func (engine *Engine) POST(pattern string, handler HandlerFunc) {
+	engine.addRoute("POST", pattern, handler)
 }
 
 // 封装原生的http.listenAndServe，会自动把路由表注入
-func (engine *Engine) Run(addr string) (err error) {
-	return http.ListenAndServe(addr, engine)
+func (engine *Engine) Run(addr string) {
+	log.Fatal(http.ListenAndServe(addr, engine))
 }
 
 // 用来判断是否存在路由信息。
