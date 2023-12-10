@@ -20,8 +20,16 @@ type Context struct {
 	Params map[string]string
 	// response info
 	StatusCode int
+	//middleware
+	handlers []HandlerFunc
+	index    int //表示执行到第几个中间件了，-1表示没有执行
 }
 
+// 中间件处理响应失败
+func (c *Context) Fail(code int, err string) {
+	c.index = len(c.handlers)
+	c.JSON(code, H{"message": err})
+}
 func (c *Context) Param(key string) string {
 	value, _ := c.Params[key]
 	return value
@@ -30,10 +38,21 @@ func (c *Context) Param(key string) string {
 // 类似于面向对象
 func newContext(w http.ResponseWriter, req *http.Request) *Context {
 	return &Context{
-		Writer: w,
-		Req:    req,
 		Path:   req.URL.Path,
 		Method: req.Method,
+		Req:    req,
+		Writer: w,
+		index:  -1,
+	}
+}
+
+// 调用一次相当于执行下一次中间件或者路由函数
+func (c *Context) Next() {
+	c.index++
+	s := len(c.handlers)
+	for ; c.index < s; c.index++ {
+		//表示到第几个路由然后传递context
+		c.handlers[c.index](c)
 	}
 }
 
