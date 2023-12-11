@@ -23,6 +23,8 @@ func (n *node) matchChild(part string) *node {
 	}
 	return nil
 }
+
+// 遍历树的节点
 func (n *node) travel(list *([]*node)) {
 	if n.pattern != "" {
 		*list = append(*list, n)
