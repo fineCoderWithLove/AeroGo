@@ -13,6 +13,6 @@ func Logger() HandlerFunc {
 		// Process request
 		c.Next()
 		// Calculate resolution time
-		log.Printf("[%d] %s in %v", c.StatusCode, c.Req.RequestURI, time.Since(t))
+		log.Printf("code: [%d] route:%s  cost:%v", c.StatusCode, c.Req.RequestURI, time.Since(t))
 	}
 }

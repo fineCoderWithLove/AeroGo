@@ -1,7 +1,6 @@
 package aerogo
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -18,6 +17,12 @@ func newRouter() *router {
 		handlers: make(map[string]HandlerFunc),
 	}
 }
+func Default() *Engine {
+	engine := New()
+	engine.Use(Logger(), Recovery())
+	return engine
+}
+
 func parsePattern(pattern string) []string {
 	vs := strings.Split(pattern, "/")
 	parts := make([]string, 0)
@@ -50,16 +55,12 @@ func (r *router) addRoute(method string, pattern string, handler HandlerFunc) {
 // 获取路由信息
 func (r *router) getRoute(method string, path string) (*node, map[string]string) {
 	searchParts := parsePattern(path)
-	fmt.Println(searchParts)
 	params := make(map[string]string)
 	root, ok := r.roots[method]
-
 	if !ok {
 		return nil, nil
 	}
-
 	n := root.search(searchParts, 0)
-	fmt.Println(n)
 	if n != nil {
 		parts := parsePattern(n.pattern)
 		for index, part := range parts {

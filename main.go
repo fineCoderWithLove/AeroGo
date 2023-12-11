@@ -3,7 +3,6 @@ package main
 import (
 	"aerogo"
 	"fmt"
-	"html/template"
 	"net/http"
 	"time"
 )
@@ -19,31 +18,15 @@ func FormatAsDate(t time.Time) string {
 }
 
 func main() {
-	r := aerogo.New()
-	r.Use(aerogo.Logger())
-	r.SetFuncMap(template.FuncMap{
-		"FormatAsDate": FormatAsDate,
-	})
-	r.LoadHTMLGlob("templates/*")
-	r.Static("/assets", "./static")
-
-	stu1 := &student{Name: "Geektutu", Age: 20}
-	stu2 := &student{Name: "Jack", Age: 22}
+	//默认engine使用logger和recovery
+	r := aerogo.Default()
 	r.GET("/", func(c *aerogo.Context) {
-		c.HTML(http.StatusOK, "css.tmpl", nil)
+		c.String(http.StatusOK, "Hello Geektutu\n")
 	})
-	r.GET("/students", func(c *aerogo.Context) {
-		c.HTML(http.StatusOK, "arr.tmpl", aerogo.H{
-			"title":  "gee",
-			"stuArr": [2]*student{stu1, stu2},
-		})
-	})
-
-	r.GET("/date", func(c *aerogo.Context) {
-		c.HTML(http.StatusOK, "custom_func.tmpl", aerogo.H{
-			"title": "gee",
-			"now":   time.Date(2019, 8, 17, 0, 0, 0, 0, time.UTC),
-		})
+	// index out of range for testing Recovery()
+	r.GET("/panic", func(c *aerogo.Context) {
+		names := []string{"geektutu"}
+		c.String(http.StatusOK, names[100])
 	})
 
 	r.Run(":9999")
