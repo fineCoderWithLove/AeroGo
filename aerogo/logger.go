@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// 自定义的日志中间件
 func Logger() HandlerFunc {
 	return func(c *Context) {
 		// Start timer
