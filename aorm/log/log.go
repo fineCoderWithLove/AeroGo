@@ -22,7 +22,7 @@ var (
 	Infof  = infoLog.Printf
 )
 
-// log levels
+// 日志级别
 const (
 	InfoLevel = iota
 	ErrorLevel

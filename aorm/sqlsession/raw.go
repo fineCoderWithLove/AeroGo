@@ -25,7 +25,7 @@ func (s *Session) DB() *sql.DB {
 	return s.db
 }
 
-// 用与拼接和链式调用
+// 用与拼接和链式调用返回自己本身
 func (s *Session) Raw(sql string, values ...interface{}) *Session {
 	s.sql.WriteString(sql)
 	s.sql.WriteString(" ")
