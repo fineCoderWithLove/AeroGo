@@ -16,9 +16,9 @@ type Field struct {
 // Schema represents a table of database
 type Schema struct {
 	Model      interface{}
-	Name       string
-	Fields     []*Field
-	FieldNames []string
+	Name       string            //表名信息
+	Fields     []*Field          //所有字段信息的切片
+	FieldNames []string          //所有字段名的切片
 	fieldMap   map[string]*Field //所有列名
 }
 
@@ -38,11 +38,13 @@ func Parse(dest interface{}, d dialect.Dialect) *Schema {
 	for i := 0; i < modelType.NumField(); i++ {
 		p := modelType.Field(i)
 		if !p.Anonymous && ast.IsExported(p.Name) {
+			//每个字段新建一个filed实例
 			field := &Field{
 				Name: p.Name,
 				Type: d.DataTypeOf(reflect.Indirect(reflect.New(p.Type))),
 			}
-			if v, ok := p.Tag.Lookup("arom"); ok {
+			//找到标签，含有arom就进行解析
+			if v, ok := p.Tag.Lookup("aorm"); ok {
 				field.Tag = v
 			}
 			schema.Fields = append(schema.Fields, field)

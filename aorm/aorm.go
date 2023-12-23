@@ -1,6 +1,7 @@
 package aorm
 
 import (
+	"aorm/dialect"
 	"aorm/log"
 	"aorm/sqlsession"
 	"database/sql"
@@ -8,35 +9,33 @@ import (
 
 // 定义engine类
 type Engine struct {
-	db *sql.DB
+	db      *sql.DB
+	dialect dialect.Dialect
 }
 
-// 新建一个engine
 func NewEngine(driver, source string) (e *Engine, err error) {
 	db, err := sql.Open(driver, source)
 	if err != nil {
 		log.Error(err)
 		return
 	}
-	//ping
+	// Send a ping to make sure the database connection is alive.
 	if err = db.Ping(); err != nil {
 		log.Error(err)
 		return
 	}
-	e = &Engine{db: db}
-	log.Info("Connect to database")
+	// make sure the specific dialect exists
+	dial, ok := dialect.GetDialect(driver)
+	if !ok {
+		log.Errorf("dialect %s Not Found", driver)
+		return
+	}
+	e = &Engine{db: db, dialect: dial}
+	log.Info("Connect database success")
 	return
 }
 
-// 关闭连接
-func (engine *Engine) Close() {
-	if err := engine.db.Close(); err != nil {
-		log.Error("Failed to close database")
-	}
-	log.Info("Close database success")
-}
-
-// 创建新的连接
+// 新建立的sqlsession
 func (engine *Engine) NewSession() *sqlsession.Session {
-	return sqlsession.New(engine.db)
+	return sqlsession.New(engine.db, engine.dialect)
 }
